@@ -12,9 +12,9 @@ __doc__="""OracleDatabaseMap.py
 
 OracleDatabaseMap maps the Oracle Databases table to Database objects
 
-$Id: OracleDatabaseMap.py,v 1.0 2010/12/13 08:22:16 egor Exp $"""
+$Id: OracleDatabaseMap.py,v 1.1 2010/12/19 21:31:35 egor Exp $"""
 
-__version__ = "$Revision: 1.0 $"[11:-2]
+__version__ = "$Revision: 1.1 $"[11:-2]
 
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -40,7 +40,7 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
 
     def queries(self, device):
         queries = {}
-	inst = 0
+        inst = 0
         for dsn in getattr(device, 'zOracleConnectStrings', []):
             cs = 'cx_Oracle,%s,%s,%s'
             dsn = dsn.replace('${dev/manageIp}', device.manageIp)
@@ -55,7 +55,7 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                             WHERE rownum = 1
                           ) VERSION,
                           '%s' DSN,
-			  0 STATUS
+                          0 STATUS
                     FROM v$database"""%dsn,
                 None,
                 cs,
@@ -96,9 +96,9 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                     'STATUS':'status',
                     'DATABASE':'setDBSrvInst',
                 })
-	    inst = inst + 1
+            inst = inst + 1
         return queries
-        
+
 
     def process(self, device, results, log):
         log.info('processing %s for device %s', self.name(), device.id)
@@ -114,7 +114,6 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                     om.setProductKey = MultiArgs(om.setProductKey, 'Oracle')
                     maps[-1].append(om)
             else: databases.extend(instances)
-	log.info('databases: %s', databases)
         self.relname = "softwaredatabases"
         self.modname = "ZenPacks.community.OracleMon.OracleTablespace"
         maps.append(self.relMap())        

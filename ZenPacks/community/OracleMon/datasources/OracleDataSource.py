@@ -62,8 +62,8 @@ class OracleDataSource(SQLDataSource.SQLDataSource):
     def getConnectionString(self, context):
         cs = SQLDataSource.SQLDataSource.getCommand(self, context,
             "cx_Oracle,%s,%s,%s"%(self.username, self.password, self.dsn))
-	if cs.upper().startswith('CX_ORACLE,SYS,'): cs = cs + ',mode=2'
-	return cs
+        if cs.upper().startswith('CX_ORACLE,SYS,'): cs = cs + ',mode=2'
+        return cs
 
 
     def zmanage_editProperties(self, REQUEST=None):
