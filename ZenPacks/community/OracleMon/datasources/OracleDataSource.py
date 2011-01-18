@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the OracleMon Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -13,9 +13,9 @@ __doc__="""OracleDataSource
 Defines attributes for how a datasource will be graphed
 and builds the nessesary DEF and CDEF statements for it.
 
-$Id: OracleDataSource.py,v 1.0 2010/12/13 10:22:33 egor Exp $"""
+$Id: OracleDataSource.py,v 1.1 2011/01/18 23:48:28 egor Exp $"""
 
-__version__ = "$Revision: 1.0 $"[11:-2]
+__version__ = "$Revision: 1.1 $"[11:-2]
 
 from ZenPacks.community.SQLDataSource.datasources import SQLDataSource
 
@@ -60,9 +60,9 @@ class OracleDataSource(SQLDataSource.SQLDataSource):
 
 
     def getConnectionString(self, context):
-        cs = SQLDataSource.SQLDataSource.getCommand(self, context,
-            "cx_Oracle,%s,%s,%s"%(self.username, self.password, self.dsn))
-        if cs.upper().startswith('CX_ORACLE,SYS,'): cs = cs + ',mode=2'
+        cs = self.getCommand(context,
+                "'cx_Oracle',%s,%s,%s"%(self.username, self.password, self.dsn))
+        if cs.upper().startswith("'CX_ORACLE',SYS,"): cs = cs + ',mode=2'
         return cs
 
 

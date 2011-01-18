@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the OracleMon Zenpack for Zenoss.
-# Copyright (C) 2010 Egor Puzanov.
+# Copyright (C) 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__="""OracleDatabaseMap.py
 
 OracleDatabaseMap maps the Oracle Databases table to Database objects
 
-$Id: OracleDatabaseMap.py,v 1.1 2010/12/19 21:31:35 egor Exp $"""
+$Id: OracleDatabaseMap.py,v 1.2 2011/01/18 23:51:56 egor Exp $"""
 
-__version__ = "$Revision: 1.1 $"[11:-2]
+__version__ = "$Revision: 1.2 $"[11:-2]
 
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -40,11 +40,10 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
 
     def queries(self, device):
         queries = {}
-        inst = 0
-        for dsn in getattr(device, 'zOracleConnectStrings', []):
-            cs = 'cx_Oracle,%s,%s,%s'
+        for inst,dsn in enumerate(getattr(device, 'zOracleConnectStrings', [])):
+            cs = "'cx_Oracle',%s,%s,%s"
             dsn = dsn.replace('${dev/manageIp}', device.manageIp)
-            if getattr(device, 'zOracleUser', '').upper() == 'SYS':cs=cs + ',mode=2'
+            if getattr(device,'zOracleUser','').upper() == 'SYS':cs=cs+',mode=2'
             cs = cs%(getattr(device, 'zOracleUser', ''),
                     getattr(device, 'zOraclePassword', ''),
                     dsn)
@@ -96,7 +95,6 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                     'STATUS':'status',
                     'DATABASE':'setDBSrvInst',
                 })
-            inst = inst + 1
         return queries
 
 
@@ -116,7 +114,7 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
             else: databases.extend(instances)
         self.relname = "softwaredatabases"
         self.modname = "ZenPacks.community.OracleMon.OracleTablespace"
-        maps.append(self.relMap())        
+        maps.append(self.relMap())
         for tspace in databases:
             if (skiptsnames and re.search(skiptsnames,tspace['dbname'])):continue
             if (skiptstypes and re.search(skiptstypes,tspace['type'])):continue
