@@ -1494,7 +1494,7 @@ LEFT JOIN
         (
                 SELECT     TABLESPACE_NAME,
                                 sum(BLOCKS) BLOCKS
-                FROM        dba_free_space
+                FROM        dba_segments
                 GROUP BY TABLESPACE_NAME
         ) b
 USING       (TABLESPACE_NAME)
