@@ -9,35 +9,29 @@ Oracle Database monitoring template
 ZenPacks.community.OracleMon.OracleSrvInst
 </property>
 <tomanycont id='datasources'>
-<object id='objects' module='ZenPacks.community.OracleMon.datasources.OracleDataSource' class='OracleDataSource'>
+<object id='objects' module='ZenPacks.community.SQLDataSource.datasources.SQLDataSource' class='SQLDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
-Oracle
+SQL
 </property>
 <property type="boolean" id="enabled" mode="w" >
 True
 </property>
+<property type="string" id="eventClass" mode="w" >
+/Status/OracleSrvInst
+</property>
 <property type="int" id="severity" mode="w" >
-3
+5
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
 </property>
+<property type="string" id="cs" mode="w" >
+${here/zOracleConnectionString}
+</property>
 <property type="string" id="sql" mode="w" >
 SELECT count(*) DbaInvalidObjects
 FROM dba_objects
-WHERE status &lt;&gt; 'VALID'
-</property>
-<property type="string" id="dsn" mode="w" >
-${here/dsn}
-</property>
-<property type="string" id="username" mode="w" >
-${here/zOracleUser}
-</property>
-<property type="string" id="password" mode="w" >
-${here/zOraclePassword}
-</property>
-<property type="int" id="timeout" mode="w" >
-15
+WHERE status IN ('VALID')
 </property>
 <tomanycont id='datapoints'>
 <object id='DbaInvalidObjects' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -50,18 +44,24 @@ True
 </object>
 </tomanycont>
 </object>
-<object id='session' module='ZenPacks.community.OracleMon.datasources.OracleDataSource' class='OracleDataSource'>
+<object id='session' module='ZenPacks.community.SQLDataSource.datasources.SQLDataSource' class='SQLDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
-Oracle
+SQL
 </property>
 <property type="boolean" id="enabled" mode="w" >
 True
 </property>
+<property type="string" id="eventClass" mode="w" >
+/Status/OracleSrvInst
+</property>
 <property type="int" id="severity" mode="w" >
-3
+5
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
+</property>
+<property type="string" id="cs" mode="w" >
+${here/zOracleConnectionString}
 </property>
 <property type="string" id="sql" mode="w" >
 SELECT sum(abp) ActiveBackgroundProcesses,
@@ -89,18 +89,6 @@ FROM   (
                 decode(status, 'ACTIVE', 1, 0) status
                 FROM v$$session)
         GROUP BY st)
-</property>
-<property type="string" id="dsn" mode="w" >
-${here/dsn}
-</property>
-<property type="string" id="username" mode="w" >
-${here/zOracleUser}
-</property>
-<property type="string" id="password" mode="w" >
-${here/zOraclePassword}
-</property>
-<property type="int" id="timeout" mode="w" >
-15
 </property>
 <tomanycont id='datapoints'>
 <object id='ActiveBackgroundProcesses' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -177,36 +165,29 @@ True
 </object>
 </tomanycont>
 </object>
-<object id='sysmetric' module='ZenPacks.community.OracleMon.datasources.OracleDataSource' class='OracleDataSource'>
+<object id='sysmetric' module='ZenPacks.community.SQLDataSource.datasources.SQLDataSource' class='SQLDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
-Oracle
+SQL
 </property>
 <property type="boolean" id="enabled" mode="w" >
 True
 </property>
+<property type="string" id="eventClass" mode="w" >
+/Status/OracleSrvInst
+</property>
 <property type="int" id="severity" mode="w" >
-3
+5
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
+</property>
+<property type="string" id="cs" mode="w" >
+${here/zOracleConnectionString}
 </property>
 <property type="string" id="sql" mode="w" >
 SELECT cast(metric_id AS char(4)) PARAMETER,
             VALUE from V$$SYSMETRIC
 WHERE group_id=2 AND metric_id in (2003,2004,2006,2016,2018,2057,2067,2071,2098,2101,2102,2103,2107,2114)
-ORDER BY metric_name
-</property>
-<property type="string" id="dsn" mode="w" >
-${here/dsn}
-</property>
-<property type="string" id="username" mode="w" >
-${here/zOracleUser}
-</property>
-<property type="string" id="password" mode="w" >
-${here/zOraclePassword}
-</property>
-<property type="int" id="timeout" mode="w" >
-15
 </property>
 <tomanycont id='datapoints'>
 <object id='CurrentLogonsCount' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -1466,30 +1447,50 @@ Oracle Tablespace monitoring template
 ZenPacks.community.OracleMon.OracleTablespace
 </property>
 <tomanycont id='datasources'>
-<object id='sizeUsed' module='ZenPacks.community.OracleMon.datasources.OracleDataSource' class='OracleDataSource'>
+<object id='sizeUsed' module='ZenPacks.community.SQLDataSource.datasources.SQLDataSource' class='SQLDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
-Oracle
+SQL
 </property>
 <property type="boolean" id="enabled" mode="w" >
 True
 </property>
+<property type="string" id="eventClass" mode="w" >
+/Status/OracleTablespace
+</property>
 <property type="int" id="severity" mode="w" >
-3
+5
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
 </property>
+<property type="string" id="cs" mode="w" >
+${here/zOracleConnectionString}
+</property>
 <property type="string" id="sql" mode="w" >
-SELECT     b.BLOCKS sizeUsed,
+SELECT    b.BLOCKS/a.MAXBLOCKS percentUsed,
+               b.BLOCKS sizeUsed,
                a.BYTES totalBytes,
+               s.STATUS status,
                TABLESPACE_NAME
 FROM
         (
                 SELECT     TABLESPACE_NAME,
-                                sum(BYTES) BYTES
+                                decode( STATUS,
+                                     'ONLINE', 2,
+                                     'READ ONLY', 3,
+                                     'OFFLINE', 4,
+                                     1) STATUS
+                FROM        dba_tablespaces
+        ) s
+LEFT JOIN
+        (
+                SELECT     TABLESPACE_NAME,
+                                sum(BYTES) BYTES,
+                                sum(decode(AUTOEXTENSIBLE, 'YES', MAXBLOCKS, BLOCKS)) MAXBLOCKS
                 FROM        dba_data_files
                 GROUP BY TABLESPACE_NAME
         ) a
+USING (TABLESPACE_NAME)
 LEFT JOIN
         (
                 SELECT     TABLESPACE_NAME,
@@ -1497,20 +1498,8 @@ LEFT JOIN
                 FROM        dba_segments
                 GROUP BY TABLESPACE_NAME
         ) b
-USING       (TABLESPACE_NAME)
+USING (TABLESPACE_NAME)
 WHERE      TABLESPACE_NAME='${here/dbname}'
-</property>
-<property type="string" id="dsn" mode="w" >
-${here/dsn}
-</property>
-<property type="string" id="username" mode="w" >
-${here/zOracleUser}
-</property>
-<property type="string" id="password" mode="w" >
-${here/zOraclePassword}
-</property>
-<property type="int" id="timeout" mode="w" >
-15
 </property>
 <tomanycont id='datapoints'>
 <object id='sizeUsed' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -1628,5 +1617,57 @@ AVERAGE
 </tomanycont>
 </object>
 </tomanycont>
+</object>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'OracleSrvInst') -->
+<object id='/zport/dmd/Events/Status/OracleSrvInst' module='Products.ZenEvents.EventClass' class='EventClass'>
+<property type="text" id="transform" mode="w" >
+status = evt.severity and 1 or 0
+for comp in device.os.softwaredbsrvinstances():
+    if comp.id != evt.component: continue
+    if comp.status != status:
+        comp.status = status
+        txnCommit()
+    break
+</property>
+<property type="text" id="transform" mode="w" >
+status = evt.severity and 1 or 0
+for comp in device.os.softwaredbsrvinstances():
+    if comp.id != evt.component: continue
+    if comp.status != status:
+        comp.status = status
+        txnCommit()
+    break
+</property>
+</object>
+<!-- ('', 'zport', 'dmd', 'Events', 'Status', 'OracleTablespace') -->
+<object id='/zport/dmd/Events/Status/OracleTablespace' module='Products.ZenEvents.EventClass' class='EventClass'>
+<property type="text" id="transform" mode="w" >
+if evt.message.startswith('threshold of '):
+    statusstr = evt.message.split()[-1].strip() 
+    status = if statusstr.replace('.','').isdigit() and int(float(statusstr)) or 1
+    evt.severity = {1:3,2:0,3:3,4:4,5:5}.get(status, 1)
+else:
+    status = evt.severity and 5 or 2
+for comp in device.os.softwaredatabases():
+    if comp.id != evt.component: continue
+    if comp.status != status:
+        comp.status = status
+        txnCommit()
+    break
+</property>
+<property type="text" id="transform" mode="w" >
+if evt.message.startswith('threshold of '):
+    statusstr = evt.message.split()[-1].strip() 
+    status = if statusstr.replace('.','').isdigit() and int(float(statusstr)) or 1
+    evt.severity = {1:3,2:0,3:3,4:4,5:5}.get(status, 1)
+else:
+    status = evt.severity and 5 or 2
+for comp in device.os.softwaredatabases():
+    if comp.id != evt.component: continue
+    if comp.status != status:
+        comp.status = status
+        txnCommit()
+    break
+</property>
 </object>
 </objects>

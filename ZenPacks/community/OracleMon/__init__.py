@@ -14,7 +14,8 @@ class ZenPack(ZenPackBase):
     """
 
     packZProperties = [
-            ('zOracleConnectStrings', ['(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${dev/manageIp})(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)))'], 'lines'),
+            ('zOracleConnectionString', "'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}'", 'string'),
+            ('zOracleDSN', ['(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${here/manageIp})(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)))'], 'lines'),
             ('zOracleUser', 'zenoss', 'string'),
             ('zOraclePassword', '', 'password'),
             ('zOracleTablespaceIgnoreNames', '', 'string'),

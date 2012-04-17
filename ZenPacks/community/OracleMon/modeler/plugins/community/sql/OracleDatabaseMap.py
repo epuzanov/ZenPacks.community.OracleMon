@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the OracleMon Zenpack for Zenoss.
-# Copyright (C) 2010, 2011 Egor Puzanov.
+# Copyright (C) 2010-2012 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__="""OracleDatabaseMap.py
 
 OracleDatabaseMap maps the Oracle Databases table to Database objects
 
-$Id: OracleDatabaseMap.py,v 1.2 2011/01/18 23:51:56 egor Exp $"""
+$Id: OracleDatabaseMap.py,v 1.3 2012/04/17 20:56:19 egor Exp $"""
 
-__version__ = "$Revision: 1.2 $"[11:-2]
+__version__ = "$Revision: 1.3 $"[11:-2]
 
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -32,7 +32,8 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
     modname = "ZenPacks.community.OracleMon.OracleSrvInst"
     deviceProperties = SQLPlugin.deviceProperties + ('zOracleUser',
                                                 'zOraclePassword',
-                                                'zOracleConnectStrings',
+                                                'zOracleConnectionString',
+                                                'zOracleDSN',
                                                 'zOracleTablespaceIgnoreNames',
                                                 'zOracleTablespaceIgnoreTypes',
                                                 )
@@ -40,43 +41,37 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
 
     def queries(self, device):
         queries = {}
-        for inst,dsn in enumerate(getattr(device, 'zOracleConnectStrings', [])):
-            cs = "'cx_Oracle',%s,%s,%s"
-            dsn = dsn.replace('${dev/manageIp}', device.manageIp)
-            if getattr(device,'zOracleUser','').upper() == 'SYS':cs=cs+',mode=2'
-            cs = cs%(getattr(device, 'zOracleUser', ''),
-                    getattr(device, 'zOraclePassword', ''),
-                    dsn)
+        connectionString = getattr(device, 'zOracleConnectionString', '') or \
+            "'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}'"
+        for inst,dsn in enumerate(getattr(device, 'zOracleDSN', [])):
+            setattr(device, 'dsn', self.prepareCS(device, dsn))
+            cs = self.prepareCS(device, connectionString)
             queries['si_%s'%inst] = (
                 """SELECT NAME,
                           ( SELECT BANNER
                             FROM v$version
                             WHERE rownum = 1
                           ) VERSION,
-                          '%s' DSN,
-                          0 STATUS
-                    FROM v$database"""%dsn,
+                          '%s' DSN
+                    FROM v$database"""%device.dsn,
                 None,
                 cs,
                 {
                     'NAME':'dbsiname',
                     'VERSION':'setProductKey',
                     'DSN':'dsn',
-                    'STATUS':'status',
                 })
             queries['db_%s'%inst] = (
                 """SELECT TABLESPACE_NAME,
                           a.CONTENTS,
                           a.BLOCK_SIZE,
                           b.BYTES/a.BLOCK_SIZE BLOCKS,
-                          a.STATUS,
                           ( SELECT NAME
                             FROM v$database
                             WHERE rownum = 1
                           ) DATABASE
                    FROM ( SELECT TABLESPACE_NAME,
                                  CONTENTS,
-                                 STATUS,
                                  BLOCK_SIZE
                           FROM dba_tablespaces ) a
                    INNER JOIN
@@ -92,11 +87,9 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                     'CONTENTS':'type',
                     'BLOCK_SIZE':'blockSize',
                     'BLOCKS':'totalBlocks',
-                    'STATUS':'status',
                     'DATABASE':'setDBSrvInst',
                 })
         return queries
-
 
     def process(self, device, results, log):
         log.info('processing %s for device %s', self.name(), device.id)
@@ -121,7 +114,6 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
             try:
                 om = self.objectMap(tspace)
                 om.id = self.prepId('%s_%s'%(om.setDBSrvInst, om.dbname))
-                om.status = {'ONLINE':2,'OFFLINE':4,'INVALID':5}.get(om.status, 1)
             except AttributeError:
                 continue
             maps[-1].append(om)

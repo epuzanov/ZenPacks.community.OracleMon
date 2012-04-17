@@ -22,7 +22,7 @@ from ZenPacks.community.RDBMS.Database import Database
 
 class OracleTablespace(Database):
     """
-    Oracel Tablespace object
+    Oracle Tablespace object
     """
 
     ZENPACKID = 'ZenPacks.community.OracleMon'
