@@ -3,7 +3,7 @@
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
 NAME = "ZenPacks.community.OracleMon"
-VERSION = "1.0.70"
+VERSION = "1.0.71"
 AUTHOR = "Egor Puzanov"
 LICENSE = ""
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.community']

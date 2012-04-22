@@ -12,9 +12,9 @@ __doc__="""OracleDatabaseMap.py
 
 OracleDatabaseMap maps the Oracle Databases table to Database objects
 
-$Id: OracleDatabaseMap.py,v 1.3 2012/04/17 20:56:19 egor Exp $"""
+$Id: OracleDatabaseMap.py,v 1.4 2012/04/18 19:55:07 egor Exp $"""
 
-__version__ = "$Revision: 1.3 $"[11:-2]
+__version__ = "$Revision: 1.4 $"[11:-2]
 
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -44,6 +44,7 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
         connectionString = getattr(device, 'zOracleConnectionString', '') or \
             "'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}'"
         for inst,dsn in enumerate(getattr(device, 'zOracleDSN', [])):
+            if not dsn.strip(): continue
             setattr(device, 'dsn', self.prepareCS(device, dsn))
             cs = self.prepareCS(device, connectionString)
             queries['si_%s'%inst] = (
