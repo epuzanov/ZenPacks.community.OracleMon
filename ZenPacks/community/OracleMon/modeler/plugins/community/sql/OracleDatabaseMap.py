@@ -12,9 +12,9 @@ __doc__="""OracleDatabaseMap.py
 
 OracleDatabaseMap maps the Oracle Databases table to Database objects
 
-$Id: OracleDatabaseMap.py,v 1.4 2012/04/18 19:55:07 egor Exp $"""
+$Id: OracleDatabaseMap.py,v 1.5 2012/04/23 19:37:24 egor Exp $"""
 
-__version__ = "$Revision: 1.4 $"[11:-2]
+__version__ = "$Revision: 1.5 $"[11:-2]
 
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -40,14 +40,18 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
 
 
     def queries(self, device):
-        queries = {}
+        tasks = {}
         connectionString = getattr(device, 'zOracleConnectionString', '') or \
             "'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}'"
-        for inst,dsn in enumerate(getattr(device, 'zOracleDSN', [])):
+        dsns = getattr(device, 'zOracleDSN', '') or \
+            "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${here/manageIp})(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)))"
+        if type(dsns) is str:
+            dsns = [dsns]
+        for inst, dsn in enumerate(dsns):
             if not dsn.strip(): continue
             setattr(device, 'dsn', self.prepareCS(device, dsn))
             cs = self.prepareCS(device, connectionString)
-            queries['si_%s'%inst] = (
+            tasks['si_%s'%inst] = (
                 """SELECT NAME,
                           ( SELECT BANNER
                             FROM v$version
@@ -62,7 +66,7 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                     'VERSION':'setProductKey',
                     'DSN':'dsn',
                 })
-            queries['db_%s'%inst] = (
+            tasks['db_%s'%inst] = (
                 """SELECT TABLESPACE_NAME,
                           a.CONTENTS,
                           a.BLOCK_SIZE,
@@ -90,7 +94,7 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                     'BLOCKS':'totalBlocks',
                     'DATABASE':'setDBSrvInst',
                 })
-        return queries
+        return tasks
 
     def process(self, device, results, log):
         log.info('processing %s for device %s', self.name(), device.id)
