@@ -7,7 +7,6 @@ About
 
 This project is `Zenoss <http://www.zenoss.com/>`_ extension (ZenPack) that
 makes it possible to model and monitor Oracle databases.
-databases.
 
 Requirements
 ============
@@ -53,7 +52,7 @@ module. cx_Oracle can be installed with **easy_install-2.6** command as
 
       ::
 
-          'pyodbc','DRIVER={OracleDB};SERVER=${here/dsn};UID=${here/zOracleUser};PWD=${here/zOraclePassword}',ansi=True
+          'pyodbc',DRIVER='{OracleDB}',SERVER='${here/dsn}',UID='${here/zOracleUser}',PWD='${here/zOraclePassword}',ansi=True
 
 - `cx_Oracle <http://cx-oracle.sourceforge.net/>`_ - DB-API 2.0 compatible Pure-Python
   interface to the Oracle database.
@@ -72,6 +71,8 @@ module. cx_Oracle can be installed with **easy_install-2.6** command as
 
 Installation
 ============
+
+If you have an old version of this ZenPack installed, please uninstall it first.
 
 Normal Installation (packaged egg)
 ----------------------------------
@@ -128,6 +129,8 @@ Monitoring Templates
 Performance graphs
 ------------------
 
+**OracleSrvInst**
+
 - Transactions
 - IO
 - Database Time Ratio
@@ -139,4 +142,7 @@ Performance graphs
 - Errors
 - Sessions
 - DBA Objects
-- Usage (OracleTablespace)
+
+**OracleTablespace**
+
+- Usage
