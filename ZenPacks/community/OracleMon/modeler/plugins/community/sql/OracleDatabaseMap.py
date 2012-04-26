@@ -12,9 +12,9 @@ __doc__="""OracleDatabaseMap.py
 
 OracleDatabaseMap maps the Oracle Databases table to Database objects
 
-$Id: OracleDatabaseMap.py,v 1.5 2012/04/23 19:37:24 egor Exp $"""
+$Id: OracleDatabaseMap.py,v 1.6 2012/04/26 23:08:02 egor Exp $"""
 
-__version__ = "$Revision: 1.5 $"[11:-2]
+__version__ = "$Revision: 1.6 $"[11:-2]
 
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -62,9 +62,9 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                 None,
                 cs,
                 {
-                    'NAME':'dbsiname',
-                    'VERSION':'setProductKey',
-                    'DSN':'dsn',
+                    'dbsiname':'name',
+                    'setProductKey':'version',
+                    'dsn':'dsn',
                 })
             tasks['db_%s'%inst] = (
                 """SELECT TABLESPACE_NAME,
@@ -88,11 +88,11 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                 None,
                 cs,
                 {
-                    'TABLESPACE_NAME':'dbname',
-                    'CONTENTS':'type',
-                    'BLOCK_SIZE':'blockSize',
-                    'BLOCKS':'totalBlocks',
-                    'DATABASE':'setDBSrvInst',
+                    'dbname':'tablespace_name',
+                    'type':'contents',
+                    'blockSize':'block_size',
+                    'totalBlocks':'blocks',
+                    'setDBSrvInst':'database',
                 })
         return tasks
 
