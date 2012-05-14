@@ -12,9 +12,9 @@ __doc__="""OracleDatabaseMap.py
 
 OracleDatabaseMap maps the Oracle Databases table to Database objects
 
-$Id: OracleDatabaseMap.py,v 1.6 2012/04/26 23:08:02 egor Exp $"""
+$Id: OracleDatabaseMap.py,v 1.7 2012/05/14 23:53:59 egor Exp $"""
 
-__version__ = "$Revision: 1.6 $"[11:-2]
+__version__ = "$Revision: 1.7 $"[11:-2]
 
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -70,7 +70,7 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                 """SELECT TABLESPACE_NAME,
                           a.CONTENTS,
                           a.BLOCK_SIZE,
-                          b.BYTES/a.BLOCK_SIZE BLOCKS,
+                          b.BLOCKS,
                           ( SELECT NAME
                             FROM v$database
                             WHERE rownum = 1
@@ -79,9 +79,9 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
                                  CONTENTS,
                                  BLOCK_SIZE
                           FROM dba_tablespaces ) a
-                   INNER JOIN
-                        ( SELECT TABLESPACE_NAME,
-                                 sum(BYTES) BYTES
+                   INNER JOIN (
+                          SELECT TABLESPACE_NAME,
+                                 sum(decode(AUTOEXTENSIBLE, 'YES', MAXBLOCKS, BLOCKS)) BLOCKS
                           FROM dba_data_files
                           GROUP BY TABLESPACE_NAME) b
                    USING (TABLESPACE_NAME)""",

@@ -1467,41 +1467,64 @@ True
 ${here/zOracleConnectionString}
 </property>
 <property type="string" id="sql" mode="w" >
-SELECT    b.BLOCKS/a.MAXBLOCKS percentUsed,
-               b.BLOCKS sizeUsed,
-               a.BYTES totalBytes,
-               s.STATUS status,
-               TABLESPACE_NAME
-FROM
-        (
-                SELECT     TABLESPACE_NAME,
-                                decode( STATUS,
-                                     'ONLINE', 2,
-                                     'READ ONLY', 3,
-                                     'OFFLINE', 4,
-                                     1) STATUS
-                FROM        dba_tablespaces
-        ) s
-LEFT JOIN
-        (
-                SELECT     TABLESPACE_NAME,
-                                sum(BYTES) BYTES,
-                                sum(decode(AUTOEXTENSIBLE, 'YES', MAXBLOCKS, BLOCKS)) MAXBLOCKS
-                FROM        dba_data_files
-                GROUP BY TABLESPACE_NAME
-        ) a
+SELECT  trunc(b.USEDBYTES/a.MAXBYTES*100) percentUsed,
+        a.BYTES fileSize,
+        b.USEDBLOCKS sizeUsed,
+        a.MAXBYTES totalBytes,
+        s.STATUS status,
+        TABLESPACE_NAME
+FROM (
+    SELECT  TABLESPACE_NAME,
+            decode( STATUS,
+                    'ONLINE', 2,
+                    'READ ONLY', 3,
+                    'OFFLINE', 4,
+                    1) STATUS
+    FROM    dba_tablespaces
+    ) s
+LEFT JOIN (
+    SELECT  TABLESPACE_NAME,
+            sum(BYTES) BYTES,
+            sum(decode(AUTOEXTENSIBLE, 'YES', MAXBYTES, BYTES)) MAXBYTES
+    FROM    dba_data_files
+    GROUP BY TABLESPACE_NAME
+    ) a
 USING (TABLESPACE_NAME)
-LEFT JOIN
-        (
-                SELECT     TABLESPACE_NAME,
-                                sum(BLOCKS) BLOCKS
-                FROM        dba_segments
-                GROUP BY TABLESPACE_NAME
+LEFT JOIN (
+    SELECT  TABLESPACE_NAME,
+            sum(BYTES) USEDBYTES,
+            sum(BLOCKS) USEDBLOCKS
+    FROM    dba_segments
+    GROUP BY TABLESPACE_NAME
         ) b
 USING (TABLESPACE_NAME)
-WHERE      TABLESPACE_NAME='${here/dbname}'
+WHERE TABLESPACE_NAME='${here/dbname}'
 </property>
 <tomanycont id='datapoints'>
+<object id='fileSize' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+<tomanycont id='aliases'>
+<object id='FILESIZE' module='Products.ZenModel.RRDDataPointAlias' class='RRDDataPointAlias'>
+</object>
+</tomanycont>
+</object>
+<object id='percentUsed' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+<tomanycont id='aliases'>
+<object id='PERCENTUSED' module='Products.ZenModel.RRDDataPointAlias' class='RRDDataPointAlias'>
+</object>
+</tomanycont>
+</object>
 <object id='sizeUsed' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 GAUGE
@@ -1511,6 +1534,18 @@ True
 </property>
 <tomanycont id='aliases'>
 <object id='SIZEUSED' module='Products.ZenModel.RRDDataPointAlias' class='RRDDataPointAlias'>
+</object>
+</tomanycont>
+</object>
+<object id='status' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+<tomanycont id='aliases'>
+<object id='STATUS' module='Products.ZenModel.RRDDataPointAlias' class='RRDDataPointAlias'>
 </object>
 </tomanycont>
 </object>
@@ -1527,6 +1562,71 @@ True
 </tomanycont>
 </object>
 </tomanycont>
+</object>
+</tomanycont>
+<tomanycont id='thresholds'>
+<object id='status' module='Products.ZenModel.MinMaxThreshold' class='MinMaxThreshold'>
+<property type="lines" id="dsnames" mode="w" >
+['sizeUsed_status']
+</property>
+<property type="boolean" id="enabled" mode="w" >
+True
+</property>
+<property type="string" id="minval" mode="w" >
+2
+</property>
+<property type="string" id="maxval" mode="w" >
+2
+</property>
+<property type="string" id="eventClass" mode="w" >
+/Status/OracleTablespace
+</property>
+<property type="int" id="severity" mode="w" >
+3
+</property>
+<property type="int" id="escalateCount" mode="w" >
+0
+</property>
+</object>
+<object id='usage critical' module='Products.ZenModel.MinMaxThreshold' class='MinMaxThreshold'>
+<property type="lines" id="dsnames" mode="w" >
+['sizeUsed_percentUsed']
+</property>
+<property type="boolean" id="enabled" mode="w" >
+True
+</property>
+<property type="string" id="maxval" mode="w" >
+97
+</property>
+<property type="string" id="eventClass" mode="w" >
+/Perf/DB
+</property>
+<property type="int" id="severity" mode="w" >
+5
+</property>
+<property type="int" id="escalateCount" mode="w" >
+0
+</property>
+</object>
+<object id='usage warning' module='Products.ZenModel.MinMaxThreshold' class='MinMaxThreshold'>
+<property type="lines" id="dsnames" mode="w" >
+['sizeUsed_percentUsed']
+</property>
+<property type="boolean" id="enabled" mode="w" >
+True
+</property>
+<property type="string" id="maxval" mode="w" >
+85
+</property>
+<property type="string" id="eventClass" mode="w" >
+/Perf/DB
+</property>
+<property type="int" id="severity" mode="w" >
+3
+</property>
+<property type="int" id="escalateCount" mode="w" >
+0
+</property>
 </object>
 </tomanycont>
 <tomanycont id='graphDefs'>
@@ -1556,6 +1656,35 @@ True
 True
 </property>
 <tomanycont id='graphPoints'>
+<object id='fileSize' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+1
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+LINE
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+Files
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+sizeUsed_fileSize
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
 <object id='sizeUsed' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
@@ -1587,7 +1716,10 @@ AVERAGE
 </object>
 <object id='totalBytes' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
-1
+2
+</property>
+<property type="string" id="color" mode="w" >
+000000
 </property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE

@@ -3,12 +3,12 @@
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
 NAME = "ZenPacks.community.OracleMon"
-VERSION = "1.1"
+VERSION = "1.2"
 AUTHOR = "Egor Puzanov"
 LICENSE = ""
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.community']
 PACKAGES = ['ZenPacks', 'ZenPacks.community', 'ZenPacks.community.OracleMon']
-INSTALL_REQUIRES = ['ZenPacks.community.RDBMS>=2.3', 'ZenPacks.community.SQLDataSource>=2.0']
+INSTALL_REQUIRES = ['ZenPacks.community.RDBMS>=2.4', 'ZenPacks.community.SQLDataSource>=2.0']
 COMPAT_ZENOSS_VERS = ">=2.5"
 PREV_ZENPACK_NAME = ""
 # STOP_REPLACEMENTS
