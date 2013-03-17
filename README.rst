@@ -42,7 +42,7 @@ module. cx_Oracle can be installed with **easy_install-2.6** command as
 
       ::
 
-          'pyisqldb','DRIVER={OracleDB};SERVER=${here/dsn};UID=${here/zOracleUser};PWD=${here/zOraclePassword}',ansi=True
+          'pyisqldb','DRIVER={OracleDB};SERVER=${here/dsn};UID=${here/zOracleUser};PWD=${here/zOraclePassword}',ansi=True,cp_good_sql='SELECT 1 FROM DUAL'
 
 - `pyodbc <http://code.google.com/p/pyodbc/>`_ - DB-API 2.0 compatible interface
   to unixODBC. Oracle ODBC driver must be installed and registered with name
@@ -52,7 +52,7 @@ module. cx_Oracle can be installed with **easy_install-2.6** command as
 
       ::
 
-          'pyodbc',DRIVER='{OracleDB}',SERVER='${here/dsn}',UID='${here/zOracleUser}',PWD='${here/zOraclePassword}',ansi=True
+          'pyodbc',DRIVER='{OracleDB}',SERVER='${here/dsn}',UID='${here/zOracleUser}',PWD='${here/zOraclePassword}',ansi=True,cp_good_sql='SELECT 1 FROM DUAL'
 
 - `cx_Oracle <http://cx-oracle.sourceforge.net/>`_ - DB-API 2.0 compatible Pure-Python
   interface to the Oracle database.
@@ -61,13 +61,13 @@ module. cx_Oracle can be installed with **easy_install-2.6** command as
 
       ::
 
-          'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}'
+          'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}',cp_good_sql='SELECT 1 FROM DUAL'
 
   zOracleConnectionString example 2 (connect as DBA):
 
       ::
 
-          'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}',mode=2
+          'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}',mode=2,cp_good_sql='SELECT 1 FROM DUAL'
 
 Installation
 ============

@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the OracleMon Zenpack for Zenoss.
-# Copyright (C) 2010-2012 Egor Puzanov.
+# Copyright (C) 2010-2013 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__="""OracleDatabaseMap.py
 
 OracleDatabaseMap maps the Oracle Databases table to Database objects
 
-$Id: OracleDatabaseMap.py,v 1.7 2012/05/14 23:53:59 egor Exp $"""
+$Id: OracleDatabaseMap.py,v 1.8 2013/03/17 21:15:08 egor Exp $"""
 
-__version__ = "$Revision: 1.7 $"[11:-2]
+__version__ = "$Revision: 1.8 $"[11:-2]
 
 from Products.ZenModel.ZenPackPersistence import ZenPackPersistence
 from Products.DataCollector.plugins.DataMaps import MultiArgs
@@ -42,7 +42,7 @@ class OracleDatabaseMap(ZenPackPersistence, SQLPlugin):
     def queries(self, device):
         tasks = {}
         connectionString = getattr(device, 'zOracleConnectionString', '') or \
-            "'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}'"
+            "'cx_Oracle','${here/zOracleUser}','${here/zOraclePassword}','${here/dsn}',cp_good_sql='SELECT 1 FROM DUAL'"
         dsns = getattr(device, 'zOracleDSN', '') or \
             "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=${here/manageIp})(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)))"
         if type(dsns) is str:
